@@ -1,5 +1,5 @@
 # vjparser
-Java Class file parser implement in V programming language.
+Java Class file parser( .class) implement in V programming language.
 
 ## How to run
 `v run . vjparser.v`
