@@ -20,9 +20,10 @@ fn main() {
 	class_file.major_version = u16(class_contents[6] << 8 | class_contents[7])
 	class_file.constant_pool_count = u16(class_contents[8] << 8 | class_contents[9])
 	mut next_tag := 9
-	for i := 0 ;i < class_file.constant_pool_count ; i++ {
+	for i in 1 .. class_file.constant_pool_count {
 		next_tag = next_tag+1
 		cp_info.tag =  class_contents[next_tag]
+		print('#$i = ${cp_info.tag} \t\t')
 		match  cp_info.tag {
 			.method_ref { next_tag = parse_method_field_interface_method_ref(class_contents,next_tag) }
 			.field_ref { next_tag = parse_method_field_interface_method_ref(class_contents,next_tag) }
@@ -30,6 +31,7 @@ fn main() {
 			.string_tag { next_tag = parse_string(class_contents,next_tag) }
 			.utf8 { next_tag = parse_utf(class_contents,next_tag) }
 			.class { next_tag = parse_class(class_contents,next_tag) }
+			.name_and_type {next_tag = parse_name_and_type(class_contents,next_tag)}
 			else {println('should not happen.${cp_info.tag}')}
 		}
 	}
@@ -43,28 +45,31 @@ fn main() {
 fn parse_method_field_interface_method_ref(class_contents []byte,offset int) int{
 	class_index := class_contents[offset+1] << 8 | class_contents[offset+2] 
 	name_and_type_index := class_contents[offset+3] << 8 | class_contents[offset+4] 
-	println('method_ref class_index : ${class_index}')
-	println('method_ref name_and_type_index : ${name_and_type_index}')
+	println('#${class_index}.#${name_and_type_index}')
 	return offset + 4
 }
 fn parse_string(class_contents []byte,offset int) int{
 	string_index := class_contents[offset+1] << 8 | class_contents[offset+2] 
-	//bytes :=  class_contents[offset+3 .. length]
-	println('parse_string string_index : ${string_index}')
-	//println('parse_utf : ${bytes}')
+	println('#${string_index}')
 	return offset + 2
 }
 
 fn parse_utf(class_contents []byte,offset int) int{
 	length := class_contents[offset+1] << 8 | class_contents[offset+2] 
-	bytes :=  class_contents[offset+3 .. offset+3+length]
-	println('parse_utf length: ${length}')
-	println('parse_utf : ${bytes}')
+	bytes :=  string(class_contents[offset+3 .. offset+3+length])
+	println('${bytes}')
 	return offset + 2 + length
 }
 
 fn parse_class(class_contents []byte,offset int) int{
 	name_index := class_contents[offset+1] << 8 | class_contents[offset+2] 
-	println('parse_class name_index : ${name_index}')
+	println('#${name_index}')
 	return offset + 2
+}
+
+fn parse_name_and_type(class_contents []byte,offset int) int{
+	name_index := class_contents[offset+1] << 8 | class_contents[offset+2] 
+	descriptor_index := class_contents[offset+3] << 8 | class_contents[offset+4] 
+	println('#${name_index}:#${descriptor_index}')
+	return offset + 4
 }

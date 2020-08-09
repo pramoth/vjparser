@@ -48,7 +48,10 @@ pub struct StringInfo {
 		string_index u16
 }
 pub struct NameAndTypeInfo{
-
+    pub mut:
+		tag ClassInfoTag
+		name_index u16
+		descriptor_index u16
 }
 pub struct Utf8Info {
 	pub mut:
